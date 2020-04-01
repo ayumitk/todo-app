@@ -2,15 +2,9 @@ import React from 'react'
 import { List, ListItem, ListItemIcon, Checkbox } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 
-const Todos = ({ todos, error, isLoaded, deleteTodo }) => {
+const Todos = ({ todos }) => {
   const yay = "You have no todo's left, yay!"
 
-  if (error) {
-    return <div>Error: {error.message}</div>
-  }
-  if (!isLoaded) {
-    return <div>Loading...</div>
-  }
   return (
     <List>
       {todos.map((todo) => (

@@ -1,59 +1,38 @@
 import React, { Component } from 'react'
-import axios from 'axios'
-import { CssBaseline, Container, Typography } from '@material-ui/core'
-import Todos from './components/Todos'
-import AddTodo from './components/AddTodo'
+import { CssBaseline, Container, Typography, List, ListItem, ListItemIcon, Checkbox, Button } from '@material-ui/core'
+import { connect } from 'react-redux'
+import { Delete } from '@material-ui/icons'
+import { deleteTodo } from './actions/todoActions'
 
 class App extends Component {
-  state = {
-    error: null,
-    isLoaded: false,
-    todos: [],
-  }
-
-  componentDidMount() {
-    axios
-      .get('https://jsonplaceholder.typicode.com/todos')
-      .then((res) => {
-        // handle success
-        console.log(res.data)
-        this.setState({
-          isLoaded: true,
-          todos: res.data.slice(0, 10),
-        })
-      })
-      .catch((error) => {
-        // handle error
-        // console.log(error)
-        this.setState({
-          isLoaded: true,
-          error,
-        })
-      })
-      .finally(() => {
-        // always executed
-      })
-  }
-
-  deleteTodo = (id) => {
-    const { todos } = this.state
-    const newTodos = todos.filter((todo) => todo.id !== id)
-    // console.log(newTodos)
-    this.setState({
-      todos: newTodos,
-    })
-  }
-
-  addTodo = (todo) => {
-    todo.id = Math.random()
-    const { todos } = this.state
-    this.setState({
-      todos: [...todos, todo],
-    })
+  handleClick = (id) => {
+    // console.log(id)
+    this.props.deleteTodo(id)
   }
 
   render() {
-    const { error, isLoaded, todos } = this.state
+    // console.log(this.props)
+    const { todos } = this.props
+
+    const todoList = todos.length ? (
+      todos.map((todo) => (
+        <ListItem key={todo.id} style={{ display: 'flex' }}>
+          <ListItemIcon>
+            <Checkbox edge="start" checked={todo.completed} tabIndex={-1} disableRipple />
+          </ListItemIcon>
+          {todo.title}
+          <Button variant="contained" style={{ marginLeft: 'auto' }} onClick={(id) => this.handleClick(todo.id)}>
+            <Delete />
+            Delete
+          </Button>
+        </ListItem>
+      ))
+    ) : (
+      <Typography variant="body1" component="p" align="center">
+        You have no todo's left, yay!
+      </Typography>
+    )
+
     return (
       <>
         <CssBaseline />
@@ -61,12 +40,21 @@ class App extends Component {
           <Typography variant="h2" component="h1" align="center">
             Todo's
           </Typography>
-          <Todos todos={todos} error={error} isLoaded={isLoaded} deleteTodo={this.deleteTodo} />
-          <AddTodo addTodo={this.addTodo} />
+          <List>{todoList}</List>
         </Container>
       </>
     )
   }
 }
 
-export default App
+const mapStateToProps = (state) => ({
+  todos: state.todos,
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  deleteTodo: (id) => {
+    dispatch(deleteTodo(id))
+  },
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
